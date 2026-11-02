@@ -218,38 +218,35 @@
   }));
   dibujos.forEach(d => ro.observe(d.svg));
 
-  /* ─── El abanico de Select: rueda de 12 hojas que se abre y gira con el scroll ─── */
+  /* ─── El abanico de Select: rueda de 12 hojas que se abre al llegar a ella
+         y gira deslizando hacia los lados. El scroll vertical no la toca. ─── */
   const rueda = (() => {
     const sec = $('[data-rueda]');
     if (!sec || calma) return null;
     sec.classList.add('rueda--viva');
+    const escena = $('.rueda__escena', sec);
     const hojas = $$('.hoja', sec);
+    $$('img', sec).forEach(i => { i.draggable = false; });
     const rotulo = $('.rueda__rotulo', sec);
     const pista = $('.rueda__pista', sec);
     rotulo.hidden = false; pista.hidden = false;
     const campos = {};
     $$('[data-rotulo]', rotulo).forEach(e => campos[e.dataset.rotulo] = e);
     const n = hojas.length, PASO = 360 / n;
-    let inicio = 0, recorrido = 1, R = 500;
+    let R = 500, pxPorHoja = 260;
     const medir = () => {
-      inicio = sec.getBoundingClientRect().top + scrollY;
-      recorrido = Math.max(1, sec.offsetHeight - innerHeight);
       R = hojas[0].offsetWidth * 1.92;
+      // el arco que recorre una hoja: así la rueda va pegada al dedo
+      pxPorHoja = R * PASO * Math.PI / 180;
       sec.style.setProperty('--R', R + 'px');
     };
     medir();
     addEventListener('resize', medir);
     addEventListener('load', medir);
 
-    const APERTURA = .1;
-    const objetivoIndice = p => {
-      // un poco de imán: cada hoja se queda un momento delante
-      const x = limita((p - APERTURA) / (1 - APERTURA)) * (n - 1);
-      const b = Math.floor(x), f = x - b;
-      const suave = f < .3 ? 0 : f > .7 ? 1 : (() => { const q = (f - .3) / .4; return q * q * (3 - 2 * q); })();
-      return b + suave;
-    };
-    let abre = 0, vAbre = 0, idx = 0, vIdx = 0, activa = -1;
+    let abre = 0, vAbre = 0, idx = 0, vIdx = 0, objI = 0, activa = -1;
+    let toque = null, ignorarClick = false, saludo = false;
+    const tocada = () => { pista.classList.add('fuera'); saludo = true; };
 
     const escribir = i => {
       const h = hojas[i];
@@ -267,26 +264,93 @@
     };
     escribir(0);
 
+    // tocar una hoja la trae al centro por el camino más corto
     hojas.forEach((h, i) => {
-      const irA = () => {
-        const p = APERTURA + i / (n - 1) * (1 - APERTURA);
-        scrollTo({ top: inicio + p * recorrido, behavior: 'smooth' });
-      };
-      $('.hoja__boton', h).addEventListener('click', irA);
+      $('.hoja__boton', h).addEventListener('click', () => {
+        if (ignorarClick) return;
+        const base = Math.round(objI);
+        let d = (i - base) % n;
+        if (d > n / 2) d -= n; else if (d < -n / 2) d += n;
+        objI = base + d;
+        tocada();
+      });
+    });
+
+    /* Arrastre lateral con dedo o ratón. Con touch-action: pan-y el navegador
+       se queda el gesto vertical, así que la página baja con normalidad. */
+    const suelta = e => {
+      if (!toque || e.pointerId !== toque.id) return;
+      if (toque.arrastra) {
+        const vel = e.timeStamp - toque.t > 90 ? 0 : toque.vel;
+        objI = Math.round(idx + limita(vel * .22, -3, 3));
+        vIdx = limita(vel, -14, 14);
+        escena.classList.remove('arrastrando');
+        ignorarClick = true;
+        setTimeout(() => { ignorarClick = false; });
+      }
+      toque = null;
+    };
+    escena.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+      toque = { id: e.pointerId, x: e.clientX, base: idx, ult: e.clientX, t: e.timeStamp, vel: 0, arrastra: false };
+    });
+    escena.addEventListener('pointermove', e => {
+      if (!toque || e.pointerId !== toque.id) return;
+      if (!e.buttons) { suelta(e); return; }
+      if (!toque.arrastra) {
+        if (Math.abs(e.clientX - toque.x) < 6) return;
+        toque.arrastra = true;
+        toque.x = toque.ult = e.clientX;
+        toque.base = idx;
+        escena.setPointerCapture(e.pointerId);
+        escena.classList.add('arrastrando');
+        tocada();
+      }
+      const dt = Math.max(1, e.timeStamp - toque.t) / 1000;
+      toque.vel = toque.vel * .7 + (-(e.clientX - toque.ult) / pxPorHoja / dt) * .3;
+      toque.ult = e.clientX;
+      toque.t = e.timeStamp;
+      // dedo a la derecha, rueda a la derecha
+      idx = toque.base - (e.clientX - toque.x) / pxPorHoja;
+    });
+    escena.addEventListener('pointerup', suelta);
+    escena.addEventListener('pointercancel', suelta);
+
+    // dos dedos hacia los lados en el trackpad; si el gesto es vertical, baja la página
+    let finTrackpad;
+    escena.addEventListener('wheel', e => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      objI += e.deltaX * (e.deltaMode === 1 ? 16 : 1) / pxPorHoja;
+      tocada();
+      clearTimeout(finTrackpad);
+      finTrackpad = setTimeout(() => { objI = Math.round(objI); }, 140);
+    }, { passive: false });
+
+    // con teclado: flechas izquierda y derecha
+    $('.rueda__lista', sec).addEventListener('keydown', e => {
+      const salto = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!salto) return;
+      e.preventDefault();
+      objI = Math.round(objI) + salto;
+      tocada();
+      $('.hoja__boton', hojas[((objI % n) + n) % n]).focus({ preventScroll: true });
     });
 
     return {
       paso(dt) {
         const r = sec.getBoundingClientRect();
         if (r.bottom < -200 || r.top > innerHeight + 200) return;
-        const p = limita((scrollY - inicio) / recorrido);
-        // muelles un pelín flojos: se pasan y vuelven, contentos
-        const objA = p > 0 ? .25 + .75 * limita(p / APERTURA) : .25 * limita(1 - r.top / innerHeight);
+        // se abre según entra en pantalla; muelles un pelín flojos: se pasan y vuelven, contentos
+        const objA = limita((innerHeight - r.top) / (innerHeight * .8));
         vAbre += (-(abre - objA) * 70 - vAbre * 9) * dt;
         abre += vAbre * dt;
-        const objI = objetivoIndice(p);
-        vIdx += (-(idx - objI) * 95 - vIdx * 15) * dt;
-        idx += vIdx * dt;
+        // al abrirse del todo amaga un giro, para que se vea que se mueve
+        if (!saludo && abre > .95) { saludo = true; vIdx += 3.6; }
+        if (!(toque && toque.arrastra)) {
+          vIdx += (-(idx - objI) * 95 - vIdx * 15) * dt;
+          idx += vIdx * dt;
+        }
 
         hojas.forEach((h, i) => {
           let d = (i - idx) % n;
@@ -300,7 +364,6 @@
         });
         const i = ((Math.round(idx) % n) + n) % n;
         if (i !== activa) escribir(i);
-        pista.classList.toggle('fuera', p > .16);
       },
     };
   })();

@@ -144,8 +144,10 @@ address{font-style:normal}
 .hoja__info h3{font:400 2.1rem/1 var(--titulo);color:var(--negro)}
 .rueda__escena{padding-inline:var(--lado)}
 
-.rueda--viva{padding-block:0;height:calc(120svh + 12*38svh)}
-.rueda--viva .rueda__escena{position:sticky;top:0;height:100svh;overflow:clip;padding:0;--w:min(20vw,36svh);--h:calc(var(--w)*1.3);--arriba:clamp(4.2rem,11svh,7rem)}
+.rueda--viva{padding-block:0;padding-bottom:clamp(30px,5vw,72px);scroll-margin-top:-5rem}
+.rueda--viva .rueda__escena{position:relative;height:max(100svh,34rem);overflow:clip;padding:0;--w:min(20vw,36svh);--h:calc(var(--w)*1.3);--arriba:clamp(4.2rem,11svh,7rem);touch-action:pan-y;overscroll-behavior-x:contain;-webkit-user-select:none;user-select:none;cursor:grab}
+.rueda--viva .rueda__escena.arrastrando,.rueda--viva .arrastrando *{cursor:grabbing}
+.rueda--viva .hoja img{-webkit-user-drag:none}
 .rueda--viva .rueda__cabeza{position:absolute;z-index:30;left:clamp(1.5rem,3.6vw,3.6rem);top:clamp(5.4rem,13vh,7.6rem);margin:0;pointer-events:none}
 .rueda--viva .rueda__titulo{font-size:clamp(3.4rem,6.8vw,6.6rem)}
 .rueda--viva .rueda__sub{max-width:13em;line-height:1.25;background:var(--papel);border-radius:.7rem;padding:.25rem .5rem 0 0}
@@ -161,8 +163,9 @@ address{font-style:normal}
 .rueda__rotulo .t{font-size:clamp(2.4rem,4vw,3.3rem);color:var(--rojo)}
 .rueda__txt{font-size:clamp(1.05rem,1.35vw,1.2rem);line-height:1.3;margin-top:.25rem;min-height:2.6em}
 .rueda__cuenta{font:600 .85rem/1 var(--sub);letter-spacing:.14em;color:var(--carmin);margin-top:.5rem}
-.rueda__pista{position:absolute;z-index:30;right:clamp(1.5rem,3.6vw,3.6rem);bottom:clamp(1rem,4svh,2.4rem);font:600 .9rem/1 var(--sub);text-transform:uppercase;letter-spacing:.08em;color:var(--carmin);transition:opacity .4s;background:var(--papel);padding:.5rem .6rem .3rem;border-radius:.6rem}
-.rueda__pista span{display:inline-block;animation:saltito 1.3s ease-in-out infinite}
+.rueda__pista{position:absolute;z-index:30;left:50%;translate:-50% 0;top:calc(var(--arriba) + var(--h) + clamp(.4rem,2svh,1.3rem));font:600 .9rem/1 var(--sub);text-transform:uppercase;letter-spacing:.08em;color:var(--carmin);white-space:nowrap;pointer-events:none;transition:opacity .4s}
+.rueda__pista span{display:inline-block;animation:pista-izq 1.3s ease-in-out infinite}
+.rueda__pista span:last-child{animation-name:pista-der}
 .rueda__pista.fuera{opacity:0}
 
 /* ─── la fórmula ─── */
@@ -324,7 +327,8 @@ address{font-style:normal}
 @keyframes flotar{0%,100%{translate:0 0}50%{translate:0 -.7rem}}
 @keyframes chispa{0%,100%{transform:scale(1) rotate(0)}12%{transform:scale(1.4) rotate(40deg)}24%{transform:scale(.8) rotate(80deg)}36%,99%{transform:scale(1) rotate(90deg)}}
 @keyframes latido{0%,100%{scale:1}50%{scale:1.3}}
-@keyframes saltito{0%,100%{translate:0 0}50%{translate:0 .25rem}}
+@keyframes pista-izq{0%,100%{translate:0 0}50%{translate:-.3rem 0}}
+@keyframes pista-der{0%,100%{translate:0 0}50%{translate:.3rem 0}}
 @keyframes cae{0%{opacity:0;transform:translateY(-1.1em) rotate(-14deg)}55%{opacity:1;transform:translateY(.1em) rotate(4deg)}80%{transform:translateY(-.04em)}100%{opacity:1;transform:none}}
 @keyframes corriente{to{transform:translateX(120px)}}
 @keyframes burbuja{0%{opacity:0;transform:translateY(0)}15%{opacity:.85}100%{opacity:0;transform:translateY(-120px)}}
@@ -365,7 +369,6 @@ address{font-style:normal}
   .rueda--viva .rueda__cabeza{top:4.2rem;left:6.6rem}
   .rueda--viva .rueda__titulo{font-size:3.1rem}
   .rueda--viva .rueda__sub{display:none}
-  .rueda__pista{display:none}
   .lab{min-height:0}
   .lab.con-resultado{margin-top:2.4rem}
   .matraz{width:min(62%,14rem)}
