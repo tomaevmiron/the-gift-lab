@@ -11,12 +11,33 @@
 <meta property="og:description" content="Regalos únicos, joyas personalizadas y talleres creativos en Lloret de Mar.">
 <meta property="og:image" content="https://tomaevmiron.github.io/the-gift-lab/img/fachada.jpg">
 <meta property="og:url" content="https://tomaevmiron.github.io/the-gift-lab/">
+<link rel="alternate" hreflang="es" href="https://tomaevmiron.github.io/the-gift-lab/?lang=es">
+<link rel="alternate" hreflang="ca" href="https://tomaevmiron.github.io/the-gift-lab/?lang=ca">
+<link rel="alternate" hreflang="en" href="https://tomaevmiron.github.io/the-gift-lab/?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://tomaevmiron.github.io/the-gift-lab/">
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=League+Spartan:wght@300;400;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="estilos.css">
-<script>document.documentElement.classList.add('js')</script>
+<script>
+  document.documentElement.classList.add('js');
+  // Idioma: el de la URL (?lang=), el último elegido o el del navegador.
+  // Si no es español, se oculta un instante para no enseñar el texto sin traducir.
+  (() => {
+    const VALE = ['es', 'ca', 'en'], raiz = document.documentElement;
+    let l = new URLSearchParams(location.search).get('lang');
+    if (!VALE.includes(l)) { try { l = localStorage.getItem('idioma'); } catch (e) { l = null; } }
+    if (!VALE.includes(l)) {
+      l = /bot|crawl|spider/i.test(navigator.userAgent) ? 'es'
+        : (navigator.languages || []).map(x => x.slice(0, 2).toLowerCase()).find(x => VALE.includes(x)) || 'en';
+    }
+    raiz.lang = l;
+    window.IDIOMA = l;
+    if (l !== 'es') { raiz.classList.add('traduciendo'); setTimeout(() => raiz.classList.remove('traduciendo'), 1500); }
+  })();
+</script>
+<script src="idiomas.js" defer></script>
 <script src="app.js" defer></script>
 <script type="application/ld+json">
 {
@@ -67,27 +88,34 @@
   <symbol id="destello" viewBox="0 0 24 24"><path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12 7-1 11-5 12-12z"/></symbol>
 </svg>
 
-<a class="saltar" href="#contenido">Saltar al contenido</a>
+<a class="saltar" href="#contenido" data-t="saltar">Saltar al contenido</a>
 
 <header class="cabecera" id="cabecera">
-  <a class="cabecera__logo" href="#inicio" aria-label="The Gift Lab, volver al inicio" data-logo>
+  <a class="cabecera__logo" href="#inicio" aria-label="The Gift Lab, volver al inicio" data-t-aria="inicio" data-logo>
     <svg class="logo" viewBox="0 0 1325.4 784.5" aria-hidden="true"><use href="#logo"/></svg>
   </a>
-  <nav class="menu" aria-label="Principal">
-    <a href="#select">Select</a>
-    <a href="#customize">Customize</a>
-    <a href="#create">Create</a>
-    <a href="#visita">Ven a vernos</a>
-  </nav>
-  <button class="menu-boton" type="button" aria-expanded="false" aria-controls="menu-movil">Menú</button>
+  <div class="cabecera__derecha">
+    <nav class="menu" aria-label="Principal" data-t-aria="navAria">
+      <a href="#select">Select</a>
+      <a href="#customize">Customize</a>
+      <a href="#create">Create</a>
+      <a href="#visita" data-t="visitanos">Ven a vernos</a>
+    </nav>
+    <div class="idiomas" role="group" aria-label="Idioma" data-t-aria="idiomaAria">
+      <a href="?lang=es" hreflang="es" lang="es" aria-label="Español" data-lang="es">ES</a>
+      <a href="?lang=ca" hreflang="ca" lang="ca" aria-label="Català" data-lang="ca">CA</a>
+      <a href="?lang=en" hreflang="en" lang="en" aria-label="English" data-lang="en">EN</a>
+    </div>
+    <button class="menu-boton" type="button" aria-expanded="false" aria-controls="menu-movil">Menú</button>
+  </div>
 </header>
 
 <div class="menu-movil" id="menu-movil" hidden>
   <a href="#select">Select</a>
   <a href="#customize">Customize</a>
   <a href="#create">Create</a>
-  <a href="#formula">La fórmula</a>
-  <a href="#visita">Ven a vernos</a>
+  <a href="#formula" data-t="formulaCorta">La fórmula</a>
+  <a href="#visita" data-t="visitanos">Ven a vernos</a>
   <p class="ceja">Lloret de Mar · Costa Brava</p>
 </div>
 
@@ -102,22 +130,22 @@
     <h1 class="portada__logo" data-logo="vivo">
       <svg class="logo" viewBox="0 0 1325.4 784.5" role="img" aria-label="The Gift Lab"><use href="#logo"/></svg>
     </h1>
-    <p class="lema">
+    <p class="lema" lang="en">
       <span class="lema__txt" data-letras="retardo">Not your typical gift shop</span>
       <svg class="destello destello--lema" aria-hidden="true"><use href="#destello"/></svg>
     </p>
-    <p class="portada__sub" data-salto style="--espera:1.15s">Regalos únicos y con alma, en el centro de Lloret.</p>
+    <p class="portada__sub" data-salto data-t="heroSub" style="--espera:1.15s">Regalos únicos y con alma, en el centro de Lloret.</p>
     <div class="portada__acciones" data-salto style="--espera:1.3s">
-      <a class="boton" href="#select" data-gelatina>Entra al lab</a>
+      <a class="boton" href="#select" data-gelatina data-t="heroCta">Entra al lab</a>
       <a class="estado" href="#visita" data-estado data-gelatina><i class="estado__punto"></i><span class="estado__txt">Martes a sábado</span></a>
     </div>
   </div>
 
   <div class="pegatinas">
-    <figure class="pegatina pegatina--1" data-pegatina style="--f:.9"><img src="img/abanico.jpg" alt="Abanico rosa con la frase ¡Qué calor!" width="619" height="1100" fetchpriority="high"></figure>
-    <figure class="pegatina pegatina--2" data-pegatina style="--f:-.6"><img src="img/lava.jpg" alt="Tres lámparas de lava de colores y velas retorcidas" width="640" height="1136"></figure>
-    <figure class="pegatina pegatina--3" data-pegatina style="--f:-.8"><img src="img/tazas.jpg" alt="Dos tazas de cerámica con la palabra coffee" width="859" height="1100"></figure>
-    <figure class="pegatina pegatina--4" data-pegatina style="--f:.7"><img src="img/peces.jpg" alt="Saleros azules con forma de pez" width="825" height="1100"></figure>
+    <figure class="pegatina pegatina--1" data-pegatina style="--f:.9"><img src="img/abanico.jpg" alt="Abanico rosa con la frase ¡Qué calor!" data-t-alt="altAbanico" width="619" height="1100" fetchpriority="high"></figure>
+    <figure class="pegatina pegatina--2" data-pegatina style="--f:-.6"><img src="img/lava.jpg" alt="Tres lámparas de lava de colores y velas retorcidas" data-t-alt="altLava" width="640" height="1136"></figure>
+    <figure class="pegatina pegatina--3" data-pegatina style="--f:-.8"><img src="img/tazas.jpg" alt="Dos tazas de cerámica con la palabra coffee" data-t-alt="altTazas" width="859" height="1100"></figure>
+    <figure class="pegatina pegatina--4" data-pegatina style="--f:.7"><img src="img/peces.jpg" alt="Saleros azules con forma de pez" data-t-alt="altPeces" width="825" height="1100"></figure>
   </div>
 </section>
 
@@ -126,26 +154,26 @@
   <svg class="ola" data-ola aria-hidden="true"></svg>
   <div class="ancho manifiesto__rejilla">
     <div>
-      <p class="ceja" data-salto>Hola, somos The Gift Lab</p>
-      <h2 class="t manifiesto__titulo" data-palabras>El regalo deja de ser un objeto y se convierte en una <mark class="t-pegatina t-pegatina--papel">experiencia</mark> con identidad.</h2>
+      <p class="ceja" data-salto data-t="holaCeja">Hola, somos The Gift Lab</p>
+      <h2 class="t manifiesto__titulo" data-palabras data-t="manifiesto">El regalo deja de ser un objeto y se convierte en una <mark class="t-pegatina t-pegatina--papel">experiencia</mark> con identidad.</h2>
     </div>
     <figure class="foto-pegada" data-salto style="--giro:2.5deg" data-gelatina>
-      <img src="img/mesa.jpg" alt="Mesa de la tienda con bola de discoteca, cerámica rosa y riñoneras de colores" width="900" height="1200" loading="lazy">
+      <img src="img/mesa.jpg" alt="Mesa de la tienda con bola de discoteca, cerámica rosa y riñoneras de colores" data-t-alt="altMesa" width="900" height="1200" loading="lazy">
     </figure>
   </div>
 
   <div class="ancho verbos">
     <a class="verbo" href="#select" data-salto data-gelatina>
       <span class="verbo__nombre"><span class="flecha">→</span> Select</span>
-      <span class="verbo__txt">Calcetines, camisas hawaianas vintage, riñoneras, deco para casa… Una selección con personalidad que hasta ahora no existía aquí.</span>
+      <span class="verbo__txt" data-t="verboSelect">Calcetines, camisas hawaianas vintage, riñoneras, deco para casa… Una selección con personalidad que hasta ahora no existía aquí.</span>
     </a>
     <a class="verbo" href="#customize" data-salto style="--espera:.12s" data-gelatina>
       <span class="verbo__nombre"><span class="flecha">→</span> Customize</span>
-      <span class="verbo__txt">Personalizamos joyas en la tienda, para que el regalo sea solo suyo y de nadie más.</span>
+      <span class="verbo__txt" data-t="verboCustomize">Personalizamos joyas en la tienda, para que el regalo sea solo suyo y de nadie más.</span>
     </a>
     <a class="verbo" href="#create" data-salto style="--espera:.24s" data-gelatina>
       <span class="verbo__nombre"><span class="flecha">→</span> Create</span>
-      <span class="verbo__txt">Talleres para sacar tu parte más artística, con algo de beber en la mano y sin necesidad de experiencia.</span>
+      <span class="verbo__txt" data-t="verboCreate">Talleres para sacar tu parte más artística, con algo de beber en la mano y sin necesidad de experiencia.</span>
     </a>
   </div>
 </section>
@@ -156,9 +184,10 @@
   <div class="rueda__escena">
     <div class="rueda__cabeza">
       <h2 class="t-pegatina rueda__titulo" data-salto>Select</h2>
-      <p class="rueda__sub" data-salto style="--espera:.1s">Deslízalo a los lados y mira lo que hay dentro.</p>
+      <p class="rueda__sub" data-salto data-t="ruedaSub" style="--espera:.1s">Deslízalo a los lados y mira lo que hay dentro.</p>
     </div>
 
+    <!-- Las traducciones de estas hojas están en idiomas.js, en el mismo orden -->
     <ol class="rueda__lista">
       <li class="hoja" data-marca="Fisura" data-nombre="Abanicos" data-txt="¡Qué calor!, I’m hot, La dolce vita… Con mucho más estilo que el aire acondicionado.">
         <button class="hoja__boton" type="button" aria-label="Ver abanicos"><img src="img/dolcevita.jpg" alt="Abanico negro La dolce vita sobre pared de ladrillo" width="640" height="1136" loading="lazy" style="object-position:50% 62%"></button>
@@ -216,7 +245,7 @@
       <p class="rueda__txt" data-rotulo="txt"></p>
       <p class="rueda__cuenta"><span data-rotulo="n">01</span> / 12</p>
     </div>
-    <p class="rueda__pista" hidden><span>←</span> Desliza <span>→</span></p>
+    <p class="rueda__pista" hidden><span>←</span> <b data-t="pista">Desliza</b> <span>→</span></p>
   </div>
 </section>
 
@@ -225,33 +254,33 @@
   <svg class="ola" data-ola aria-hidden="true"></svg>
   <div class="ancho formula__rejilla">
     <div class="formula__preguntas">
-      <p class="ceja" data-salto>El laboratorio</p>
-      <h2 class="t" data-letras>La fórmula del regalo</h2>
-      <p class="entradilla" data-salto>¿No sabes qué regalar? Para eso está el lab. Echa dos ingredientes y mira qué sale.</p>
+      <p class="ceja" data-salto data-t="formulaCeja">El laboratorio</p>
+      <h2 class="t" data-letras data-t="formulaTitulo">La fórmula del regalo</h2>
+      <p class="entradilla" data-salto data-t="formulaIntro">¿No sabes qué regalar? Para eso está el lab. Echa dos ingredientes y mira qué sale.</p>
 
       <div class="ingrediente" data-salto role="group" aria-labelledby="ing-1">
-        <p class="ingrediente__titulo" id="ing-1"><b>1</b> ¿Para quién es?</p>
+        <p class="ingrediente__titulo" id="ing-1"><b>1</b> <span data-t="preguntaPara">¿Para quién es?</span></p>
         <div class="opciones" data-grupo="para">
-          <button class="opcion" type="button" data-valor="amiga" aria-pressed="false">Mi mejor amiga</button>
-          <button class="opcion" type="button" data-valor="madre" aria-pressed="false">Mi madre</button>
-          <button class="opcion" type="button" data-valor="viaje" aria-pressed="false">Alguien que siempre viaja</button>
-          <button class="opcion" type="button" data-valor="todo" aria-pressed="false">Quien ya lo tiene todo</button>
-          <button class="opcion" type="button" data-valor="yo" aria-pressed="false">Para mí, que me lo merezco</button>
+          <button class="opcion" type="button" data-valor="amiga" aria-pressed="false" data-t="opAmiga">Mi mejor amiga</button>
+          <button class="opcion" type="button" data-valor="madre" aria-pressed="false" data-t="opMadre">Mi madre</button>
+          <button class="opcion" type="button" data-valor="viaje" aria-pressed="false" data-t="opViaje">Alguien que siempre viaja</button>
+          <button class="opcion" type="button" data-valor="todo" aria-pressed="false" data-t="opTodo">Quien ya lo tiene todo</button>
+          <button class="opcion" type="button" data-valor="yo" aria-pressed="false" data-t="opYo">Para mí, que me lo merezco</button>
         </div>
       </div>
       <div class="ingrediente" data-salto role="group" aria-labelledby="ing-2">
-        <p class="ingrediente__titulo" id="ing-2"><b>2</b> ¿Qué tiene que pasar?</p>
+        <p class="ingrediente__titulo" id="ing-2"><b>2</b> <span data-t="preguntaPlan">¿Qué tiene que pasar?</span></p>
         <div class="opciones" data-grupo="plan">
-          <button class="opcion" type="button" data-valor="risa" aria-pressed="false">Que se ría</button>
-          <button class="opcion" type="button" data-valor="casa" aria-pressed="false">Que le alegre la casa</button>
-          <button class="opcion" type="button" data-valor="lucir" aria-pressed="false">Que lo luzca</button>
-          <button class="opcion" type="button" data-valor="crear" aria-pressed="false">Que cree algo</button>
+          <button class="opcion" type="button" data-valor="risa" aria-pressed="false" data-t="opRisa">Que se ría</button>
+          <button class="opcion" type="button" data-valor="casa" aria-pressed="false" data-t="opCasa">Que le alegre la casa</button>
+          <button class="opcion" type="button" data-valor="lucir" aria-pressed="false" data-t="opLucir">Que lo luzca</button>
+          <button class="opcion" type="button" data-valor="crear" aria-pressed="false" data-t="opCrear">Que cree algo</button>
         </div>
       </div>
     </div>
 
     <div class="lab" data-lab>
-      <svg class="matraz" viewBox="0 0 240 300" role="img" aria-label="Un matraz sonriente que burbujea">
+      <svg class="matraz" viewBox="0 0 240 300" role="img" aria-label="Un matraz sonriente que burbujea" data-t-aria="matrazAria">
         <defs><clipPath id="dentro"><path d="M102 26v80L42 236c-7 15 3 32 20 32h116c17 0 27-17 20-32L138 106V26z"/></clipPath></defs>
         <g clip-path="url(#dentro)">
           <g class="matraz__liquido">
@@ -272,12 +301,12 @@
       <article class="resultado" data-resultado hidden aria-live="polite">
         <img data-r="img" src="img/abanico.jpg" alt="" width="619" height="1100" loading="lazy">
         <div class="resultado__txt">
-          <p class="ceja">Ha salido…</p>
+          <p class="ceja" data-t="resultadoCeja">Ha salido…</p>
           <h3 class="t" data-r="nombre"></h3>
           <p data-r="txt"></p>
           <div class="resultado__acciones">
-            <a class="boton boton--mini" href="https://ig.me/m/thegiftlab.lloret" target="_blank" rel="noopener" data-gelatina>Pregúntanos</a>
-            <button class="enlace" type="button" data-otra>Probar otra mezcla</button>
+            <a class="boton boton--mini" href="https://ig.me/m/thegiftlab.lloret" target="_blank" rel="noopener" data-gelatina data-t="preguntanos">Pregúntanos</a>
+            <button class="enlace" type="button" data-otra data-t="otraMezcla">Probar otra mezcla</button>
           </div>
         </div>
       </article>
@@ -294,14 +323,14 @@
       <svg class="marco marco--relleno" data-marco aria-hidden="true"></svg>
       <div class="mezcla__rejilla">
         <div class="mezcla__txt">
-          <h3 class="sub">Hazlo tuyo</h3>
-          <p class="entradilla">Personalizamos joyas en la tienda: tú eliges, nosotras lo montamos. Aquí puedes ir calentando con una pulsera de bolitas.</p>
-          <p class="ingrediente__titulo">Toca colores y mira cómo cambia</p>
+          <h3 class="sub" data-t="hazloTuyo">Hazlo tuyo</h3>
+          <p class="entradilla" data-t="customizeIntro">Personalizamos joyas en la tienda: tú eliges, nosotras lo montamos. Aquí puedes ir calentando con una pulsera de bolitas.</p>
+          <p class="ingrediente__titulo" data-t="tocaColores">Toca colores y mira cómo cambia</p>
           <div class="muestras" data-muestras></div>
-          <button class="enlace" type="button" data-sorpresa>Sorpréndeme</button>
-          <p class="mezcla__nota">Esto es solo un juego. La de verdad te la llevas puesta.</p>
+          <button class="enlace" type="button" data-sorpresa data-t="sorprendeme">Sorpréndeme</button>
+          <p class="mezcla__nota" data-t="notaJuego">Esto es solo un juego. La de verdad te la llevas puesta.</p>
         </div>
-        <svg class="pulsera" data-pulsera viewBox="0 0 460 460" role="img" aria-label="Pulsera de bolitas de colores que cambia según los colores elegidos"></svg>
+        <svg class="pulsera" data-pulsera viewBox="0 0 460 460" role="img" aria-label="Pulsera de bolitas de colores que cambia según los colores elegidos" data-t-aria="pulseraAria"></svg>
       </div>
     </div>
   </div>
@@ -313,42 +342,42 @@
   <div class="ancho">
     <div class="crea__cabeza">
       <h2 class="t-pegatina crea__titulo" data-salto>Create</h2>
-      <p class="entradilla" data-salto>Talleres para mancharse las manos. No necesitas experiencia, solo ganas de pasarlo bien. Y sí: en la tienda hay un pequeño córner de café mientras creas.</p>
+      <p class="entradilla" data-salto data-t="createIntro">Talleres para mancharse las manos. No necesitas experiencia, solo ganas de pasarlo bien. Y sí: en la tienda hay un pequeño córner de café mientras creas.</p>
     </div>
 
     <article class="entrada" data-taller-proximo data-hasta="2026-11-07" data-salto>
-      <img src="img/taller-brunch.jpg" alt="Maquillador trabajando con una alumna, cartel de The Gift Lab con The Makeup Brunch" width="928" height="461" loading="lazy">
+      <img src="img/taller-brunch.jpg" alt="Maquillador trabajando con una alumna, cartel de The Gift Lab con The Makeup Brunch" data-t-alt="altBrunch" width="928" height="461" loading="lazy">
       <div class="entrada__txt">
-        <p class="ceja">Próximo taller · Últimas plazas</p>
-        <h3 class="t">Automaquillaje con brunch</h3>
-        <p>Una mañana con The Makeup Brunch y Flormar para aprender preparación de piel, corrección, color, mirada y labios. El brunch va incluido, cómo no.</p>
-        <a class="boton boton--mini" href="https://www.instagram.com/themakeupbrunchstudio/" target="_blank" rel="noopener" data-gelatina>Reservar plaza</a>
+        <p class="ceja" data-t="proximoCeja">Próximo taller · Últimas plazas</p>
+        <h3 class="t" data-t="tallerBrunch">Automaquillaje con brunch</h3>
+        <p data-t="tallerBrunchTxt">Una mañana con The Makeup Brunch y Flormar para aprender preparación de piel, corrección, color, mirada y labios. El brunch va incluido, cómo no.</p>
+        <a class="boton boton--mini" href="https://www.instagram.com/themakeupbrunchstudio/" target="_blank" rel="noopener" data-gelatina data-t="reservar">Reservar plaza</a>
       </div>
       <div class="entrada__talon">
         <span class="entrada__dia">07</span>
         <span class="entrada__mes">Nov</span>
-        <span class="entrada__hora">Sábado · 10:00 h</span>
+        <span class="entrada__hora" data-t="tallerHora">Sábado · 10:00 h</span>
       </div>
     </article>
-    <p class="crea__aviso" data-taller-vacio hidden>Se viene taller nuevo. Lo contamos primero en <a href="https://www.instagram.com/thegiftlab.lloret/" target="_blank" rel="noopener">Instagram</a>.</p>
+    <p class="crea__aviso" data-taller-vacio data-t="tallerVacio" hidden>Se viene taller nuevo. Lo contamos primero en <a href="https://www.instagram.com/thegiftlab.lloret/" target="_blank" rel="noopener">Instagram</a>.</p>
 
-    <h3 class="sub crea__sub" data-salto>Otros que ya hemos hecho</h3>
+    <h3 class="sub crea__sub" data-salto data-t="otrosTalleres">Otros que ya hemos hecho</h3>
     <ul class="pasados">
       <li class="pasado" data-salto data-gelatina style="--giro:-1.5deg">
-        <img src="img/taller-pulsera.jpg" alt="Pizarra del taller Ball Chain Bracelet con pulseras de colores" width="1100" height="1100" loading="lazy">
+        <img src="img/taller-pulsera.jpg" alt="Pizarra del taller Ball Chain Bracelet con pulseras de colores" data-t-alt="altPulsera" width="1100" height="1100" loading="lazy">
         <h4>Ball Chain Bracelet</h4>
-        <p>Una pulsera hecha por ti. Solo hacen falta ganas.</p>
+        <p data-t="pulseraTxt">Una pulsera hecha por ti. Solo hacen falta ganas.</p>
       </li>
       <li class="pasado" data-salto data-gelatina style="--espera:.12s;--giro:1deg">
-        <img src="img/taller-cubo.jpg" alt="Lámpara cubo iridiscente encendida" width="640" height="772" loading="lazy">
+        <img src="img/taller-cubo.jpg" alt="Lámpara cubo iridiscente encendida" data-t-alt="altCubo" width="640" height="772" loading="lazy">
         <h4>Cube Lamp</h4>
-        <p>Creatividad, buena compañía y magia de colores.</p>
+        <p data-t="cuboTxt">Creatividad, buena compañía y magia de colores.</p>
       </li>
       <li class="pasado pasado--invita" data-salto style="--espera:.24s;--giro:-.6deg">
         <svg class="destello" aria-hidden="true"><use href="#destello"/></svg>
-        <h4>¿Te apuntas al siguiente?</h4>
-        <p>Las plazas son muy limitadas y vuelan. Escríbenos por DM o pásate por la tienda.</p>
-        <a class="boton boton--mini" href="https://ig.me/m/thegiftlab.lloret" target="_blank" rel="noopener" data-gelatina>Escríbenos</a>
+        <h4 data-t="siguienteTitulo">¿Te apuntas al siguiente?</h4>
+        <p data-t="siguienteTxt">Las plazas son muy limitadas y vuelan. Escríbenos por DM o pásate por la tienda.</p>
+        <a class="boton boton--mini" href="https://ig.me/m/thegiftlab.lloret" target="_blank" rel="noopener" data-gelatina data-t="escribenos">Escríbenos</a>
       </li>
     </ul>
   </div>
@@ -358,9 +387,9 @@
 <section class="seccion marcas" style="--fondo:var(--menta)">
   <svg class="ola" data-ola aria-hidden="true"></svg>
   <div class="ancho marcas__rejilla">
-    <div class="tablero" data-tablero role="img" aria-label="Tablero de letras con las marcas: Eat My Socks, Helio Ferretti, Nordtrice, Fisura, DOIY, Hej Ibiza, Cámaras Mini, Studio Inktvis y Teules">
-      <p>*Marcas que*</p>
-      <p>nos encantan</p>
+    <div class="tablero" data-tablero role="img" aria-label="Tablero de letras con las marcas: Eat My Socks, Helio Ferretti, Nordtrice, Fisura, DOIY, Hej Ibiza, Cámaras Mini, Studio Inktvis y Teules" data-t-aria="tableroAria">
+      <p data-t="tablero1">*Marcas que*</p>
+      <p data-t="tablero2">nos encantan</p>
       <p class="hueco">→Eat my socks</p>
       <p>&nbsp;Helio Ferretti</p>
       <p>→Nordtrice</p>
@@ -371,12 +400,12 @@
       <p>&nbsp;Teules</p>
     </div>
     <div class="opiniones">
-      <p class="ceja" data-salto>Lo que dicen de nosotras</p>
-      <p class="nota" data-salto><span class="nota__num">5,0</span> <span class="nota__estrellas" aria-label="Cinco estrellas"><svg aria-hidden="true"><use href="#destello"/></svg><svg aria-hidden="true"><use href="#destello"/></svg><svg aria-hidden="true"><use href="#destello"/></svg><svg aria-hidden="true"><use href="#destello"/></svg><svg aria-hidden="true"><use href="#destello"/></svg></span></p>
-      <p class="sub nota__base" data-salto>25 opiniones en Google</p>
-      <blockquote class="cita" data-salto>«No pude resistir de llevarme un abanico.»<cite>Aida G.</cite></blockquote>
-      <blockquote class="cita" data-salto style="--espera:.1s">«Un sitio muy creativo y original.»<cite>Marc M.</cite></blockquote>
-      <blockquote class="cita" data-salto style="--espera:.2s">«La chica ha sido espectacularmente simpática.»<cite>Lidia M.</cite></blockquote>
+      <p class="ceja" data-salto data-t="opinionesCeja">Lo que dicen de nosotras</p>
+      <p class="nota" data-salto><span class="nota__num">5,0</span> <span class="nota__estrellas" aria-label="Cinco estrellas" data-t-aria="estrellasAria"><svg aria-hidden="true"><use href="#destello"/></svg><svg aria-hidden="true"><use href="#destello"/></svg><svg aria-hidden="true"><use href="#destello"/></svg><svg aria-hidden="true"><use href="#destello"/></svg><svg aria-hidden="true"><use href="#destello"/></svg></span></p>
+      <p class="sub nota__base" data-salto data-t="opinionesBase">25 opiniones en Google</p>
+      <blockquote class="cita" data-salto><span data-t="cita1">«No pude resistir de llevarme un abanico.»</span><cite>Aida G.</cite></blockquote>
+      <blockquote class="cita" data-salto style="--espera:.1s"><span data-t="cita2">«Un sitio muy creativo y original.»</span><cite>Marc M.</cite></blockquote>
+      <blockquote class="cita" data-salto style="--espera:.2s"><span data-t="cita3">«La chica ha sido espectacularmente simpática.»</span><cite>Lidia M.</cite></blockquote>
     </div>
   </div>
 </section>
@@ -387,14 +416,14 @@
   <div class="ancho creadoras__rejilla">
     <figure class="creadoras__foto" data-salto>
       <svg class="marco marco--foto" data-marco aria-hidden="true"></svg>
-      <img src="img/fachada.jpg" alt="Aroa y Lynn en la puerta de The Gift Lab, con abanicos en la mano y el letrero luminoso encima" width="1070" height="1080" loading="lazy">
+      <img src="img/fachada.jpg" alt="Aroa y Lynn en la puerta de The Gift Lab, con abanicos en la mano y el letrero luminoso encima" data-t-alt="altFachada" width="1070" height="1080" loading="lazy">
     </figure>
     <div class="creadoras__txt">
-      <p class="ceja" data-salto>Quién hay detrás</p>
-      <h2 class="t" data-letras>Somos Aroa y Lynn</h2>
-      <p class="entradilla" data-salto>Trabajando en alquiler turístico, los clientes siempre nos preguntaban lo mismo: ¿dónde encuentro regalos originales por aquí? La respuesta era que en ningún sitio. Así que lo montamos.</p>
-      <p data-salto>Aroa viene de la moda: tuvo tienda en Barcelona y una marca propia reconocida en Europa. Lynn es de Holanda y trabajó con éxito en su propia marca de joyería. Nos une la creatividad y las ganas de crear experiencias con personalidad.</p>
-      <p data-salto>Después de años viajando y conociendo proyectos creativos, abrimos este espacio para Lloret de Mar.</p>
+      <p class="ceja" data-salto data-t="quienCeja">Quién hay detrás</p>
+      <h2 class="t" data-letras data-t="somos">Somos Aroa y Lynn</h2>
+      <p class="entradilla" data-salto data-t="historia1">Trabajando en alquiler turístico, los clientes siempre nos preguntaban lo mismo: ¿dónde encuentro regalos originales por aquí? La respuesta era que en ningún sitio. Así que lo montamos.</p>
+      <p data-salto data-t="historia2">Aroa viene de la moda: tuvo tienda en Barcelona y una marca propia reconocida en Europa. Lynn es de Holanda y trabajó con éxito en su propia marca de joyería. Nos une la creatividad y las ganas de crear experiencias con personalidad.</p>
+      <p data-salto data-t="historia3">Después de años viajando y conociendo proyectos creativos, abrimos este espacio para Lloret de Mar.</p>
     </div>
   </div>
 </section>
@@ -406,29 +435,29 @@
     <div class="cartel" data-salto>
       <svg class="marco marco--cartel" data-marco aria-hidden="true"></svg>
       <svg class="logo cartel__logo" viewBox="0 0 1325.4 784.5" aria-hidden="true"><use href="#logo"/></svg>
-      <p class="cartel__ceja">Horari d’hivern / Horario invierno</p>
-      <p class="cartel__dia" data-dias="2,3,4,5">Dimarts a divendres<br>Martes a viernes</p>
-      <p class="cartel__hora" data-dias="2,3,4,5">De 11:00 a 18:00</p>
-      <p class="cartel__dia" data-dias="6">Dissabtes / Sábados</p>
-      <p class="cartel__hora" data-dias="6">De 10:30 a 13:30<br>De 17:00 a 20:00</p>
-      <p class="cartel__dia" data-dias="0,1">Diumenge i dilluns<br>Domingo y lunes</p>
-      <p class="cartel__hora cartel__hora--cerrado" data-dias="0,1">Tancat / Cerrado</p>
+      <p class="cartel__ceja" data-t="cartelCeja">Horario de invierno</p>
+      <p class="cartel__dia" data-dias="2,3,4,5" data-t="cartelDia1">Martes a viernes</p>
+      <p class="cartel__hora" data-dias="2,3,4,5" data-t="cartelHora1">De 11:00 a 18:00</p>
+      <p class="cartel__dia" data-dias="6" data-t="cartelDia2">Sábados</p>
+      <p class="cartel__hora" data-dias="6" data-t="cartelHora2">De 10:30 a 13:30<br>De 17:00 a 20:00</p>
+      <p class="cartel__dia" data-dias="0,1" data-t="cartelDia3">Domingo y lunes</p>
+      <p class="cartel__hora cartel__hora--cerrado" data-dias="0,1" data-t="cartelHora3">Cerrado</p>
     </div>
 
     <div class="visita__datos">
-      <p class="ceja" data-salto>Te esperamos</p>
-      <h2 class="t" data-letras>Ven a vernos</h2>
+      <p class="ceja" data-salto data-t="esperamos">Te esperamos</p>
+      <h2 class="t" data-letras data-t="venVernos">Ven a vernos</h2>
       <a class="estado estado--grande" data-estado href="https://www.google.com/maps/dir/?api=1&destination=41.7018153,2.8474377" target="_blank" rel="noopener" data-salto><i class="estado__punto"></i><span class="estado__txt">Martes a sábado</span></a>
       <address data-salto>
         Carrer de Narcís Fors, 23<br>
         17310 Lloret de Mar, Girona
       </address>
       <div class="visita__acciones" data-salto>
-        <a class="boton" href="https://www.google.com/maps/search/?api=1&query=The+Gift+Lab+Lloret+Carrer+de+Narc%C3%ADs+Fors+23+Lloret+de+Mar" target="_blank" rel="noopener" data-gelatina>Cómo llegar</a>
+        <a class="boton" href="https://www.google.com/maps/search/?api=1&query=The+Gift+Lab+Lloret+Carrer+de+Narc%C3%ADs+Fors+23+Lloret+de+Mar" target="_blank" rel="noopener" data-gelatina data-t="comoLlegar">Cómo llegar</a>
         <a class="boton boton--rosa" href="https://www.instagram.com/thegiftlab.lloret/" target="_blank" rel="noopener" data-gelatina>Instagram</a>
       </div>
       <div class="mapa" data-salto>
-        <iframe title="Mapa de The Gift Lab en Lloret de Mar" src="https://www.google.com/maps?q=Carrer+de+Narc%C3%ADs+Fors+23,+17310+Lloret+de+Mar&z=16&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <iframe title="Mapa de The Gift Lab en Lloret de Mar" data-t-title="mapaTitulo" data-mapa src="https://www.google.com/maps?q=Carrer+de+Narc%C3%ADs+Fors+23,+17310+Lloret+de+Mar&z=16&output=embed&hl=es" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
     </div>
   </div>
@@ -442,9 +471,14 @@
     <div class="pie__logo" data-logo="vivo" data-salto>
       <svg class="logo" viewBox="0 0 1325.4 784.5" role="img" aria-label="The Gift Lab"><use href="#logo"/></svg>
     </div>
-    <p class="pie__lema">Not your typical gift shop</p>
-    <p class="pie__verbos">Create · Customize · Select · Workshops</p>
+    <p class="pie__lema" lang="en">Not your typical gift shop</p>
+    <p class="pie__verbos" lang="en">Create · Customize · Select · Workshops</p>
     <p class="pie__datos">Carrer de Narcís Fors, 23 · Lloret de Mar · <a href="https://www.instagram.com/thegiftlab.lloret/" target="_blank" rel="noopener">@thegiftlab.lloret</a></p>
+    <div class="idiomas idiomas--pie" role="group" aria-label="Idioma" data-t-aria="idiomaAria">
+      <a href="?lang=es" hreflang="es" lang="es" data-lang="es">Español</a>
+      <a href="?lang=ca" hreflang="ca" lang="ca" data-lang="ca">Català</a>
+      <a href="?lang=en" hreflang="en" lang="en" data-lang="en">English</a>
+    </div>
     <p class="pie__legal">© <span data-anio>2026</span> The Gift Lab Lloret</p>
   </div>
 </footer>

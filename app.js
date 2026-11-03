@@ -7,6 +7,19 @@
   const fino = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const limita = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 
+  /* ─── Idiomas: el español está en el HTML; se guarda aquí antes de tocar nada
+         para poder volver a él. Catalán e inglés vienen de idiomas.js ─── */
+  const TEXTOS = window.TEXTOS;
+  let idioma = window.IDIOMA || 'es';
+  const textosBase = $$('[data-t]').map(el => ({ el, clave: el.dataset.t, base: el.innerHTML }));
+  const atributosBase = [['t-alt', 'alt'], ['t-aria', 'aria-label'], ['t-title', 'title']].flatMap(([d, attr]) =>
+    $$(`[data-${d}]`).map(el => ({ el, attr, clave: el.getAttribute(`data-${d}`), base: el.getAttribute(attr) })));
+  const hojasBase = $$('.hoja').map(h => ({
+    marca: h.dataset.marca, nombre: h.dataset.nombre, txt: h.dataset.txt,
+    alt: $('img', h).alt, aria: $('.hoja__boton', h).getAttribute('aria-label'),
+  }));
+  const descBase = $('meta[name="description"]').content;
+
   /* ─── Horario de invierno. Si cambia, se toca aquí y en el cartel del HTML.
          Minutos desde medianoche, 0 = domingo. ─── */
   const HORARIO = {
@@ -56,21 +69,20 @@
   }
 
   /* ─── Partir títulos en letras o palabras para que salten ─── */
-  $$('[data-letras]').forEach(el => {
-    const txt = el.textContent.trim();
+  const partirLetras = (el, txt) => {
     el.setAttribute('aria-label', txt);
     let i = 0;
     el.innerHTML = txt.split(' ').map(p =>
       `<span class="palabra-entera" aria-hidden="true">` +
       [...p].map(c => `<span class="letra" style="--i:${i++}">${c}</span>`).join('') +
       `</span>`).join(' ');
-    if (el.dataset.letras === 'retardo') { el.style.setProperty('--espera', '.8s'); requestAnimationFrame(() => el.classList.add('ya')); }
-  });
-  $$('[data-palabras]').forEach(el => {
+  };
+  const partirPalabras = (el, html) => {
+    const molde = document.createElement('div');
+    molde.innerHTML = html;
     let i = 0;
-    const nodos = [...el.childNodes];
     el.textContent = '';
-    nodos.forEach(n => {
+    [...molde.childNodes].forEach(n => {
       if (n.nodeType === 3) {
         n.textContent.split(/(\s+)/).forEach(t => {
           if (!t) return;
@@ -81,19 +93,27 @@
         });
       } else {
         n.classList.add('palabra'); n.style.setProperty('--i', i++);
+        if (n.classList.contains('t-pegatina')) n.style.textShadow = anillo;
         el.append(n);
       }
     });
-  });
+  };
+  // el lema no se traduce; el resto de títulos los parte traducir()
+  $$('[data-letras]:not([data-t])').forEach(el => partirLetras(el, el.textContent.trim()));
+  const lema = $('[data-letras="retardo"]');
+  lema.style.setProperty('--espera', '.8s');
+  requestAnimationFrame(() => lema.classList.add('ya'));
 
   /* ─── Tablero de letras: cada letra un poco torcida, como en la tienda ─── */
-  $$('[data-tablero] p').forEach((p, n, todas) => {
-    const base = todas.slice(0, n).reduce((s, q) => s + q.textContent.length, 0);
-    const txt = p.textContent;
-    p.innerHTML = [...txt].map((c, i) => c.trim() === ''
-      ? c
-      : `<span class="tecla" style="--i:${base + i};--g:${((i * 37 + n * 13) % 7 - 3) * .5}deg">${c}</span>`).join('');
-  });
+  const partirTablero = () => {
+    $$('[data-tablero] p').forEach((p, n, todas) => {
+      const base = todas.slice(0, n).reduce((s, q) => s + q.textContent.length, 0);
+      const txt = p.textContent;
+      p.innerHTML = [...txt].map((c, i) => c.trim() === ''
+        ? c
+        : `<span class="tecla" style="--i:${base + i};--g:${((i * 37 + n * 13) % 7 - 3) * .5}deg">${c}</span>`).join('');
+    });
+  };
 
   /* ─── Aparecer al entrar en pantalla ─── */
   const ven = new IntersectionObserver(es => es.forEach(e => {
@@ -248,12 +268,16 @@
     let toque = null, ignorarClick = false, saludo = false;
     const tocada = () => { pista.classList.add('fuera'); saludo = true; };
 
-    const escribir = i => {
+    const rellenar = i => {
       const h = hojas[i];
       campos.marca.textContent = h.dataset.marca;
       campos.nombre.textContent = h.dataset.nombre;
       campos.txt.textContent = h.dataset.txt;
       campos.n.textContent = String(i + 1).padStart(2, '0');
+    };
+    const escribir = i => {
+      rellenar(i);
+      const h = hojas[i];
       if (activa !== -1 && rotulo.animate) {
         campos.nombre.animate(
           [{ transform: 'translateY(.35em) scale(.96,1.06)', opacity: .2 }, { transform: 'translateY(-.08em) scale(1.03,.97)', opacity: 1, offset: .55 }, { transform: 'none', opacity: 1 }],
@@ -338,6 +362,7 @@
     });
 
     return {
+      refrescar() { rellenar(activa); },
       paso(dt) {
         const r = sec.getBoundingClientRect();
         if (r.bottom < -200 || r.top > innerHeight + 200) return;
@@ -424,18 +449,22 @@
     const dia = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(val('weekday'));
     const min = (+val('hour') % 24) * 60 + +val('minute');
     const hhmm = m => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
-    const NOMBRES = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+    const T = TEXTOS[idioma];
     const hoy = HORARIO[dia] || [];
     const tramo = hoy.find(([a, b]) => min >= a && min < b);
     let txt, abierto = false;
-    if (tramo) { abierto = true; txt = `Abierto hasta las ${hhmm(tramo[1])}`; }
+    if (tramo) { abierto = true; txt = T.abierto(hhmm(tramo[1])); }
     else {
       const luego = hoy.find(([a]) => min < a);
-      if (luego) txt = `Cerrado · abrimos a las ${hhmm(luego[0])}`;
+      if (luego) txt = T.abrimos(hhmm(luego[0]));
       else {
         for (let s = 1; s <= 7; s++) {
           const d = (dia + s) % 7;
-          if (HORARIO[d]) { txt = `Cerrado · volvemos ${s === 1 ? 'mañana' : 'el ' + NOMBRES[d]} a las ${hhmm(HORARIO[d][0][0])}`; break; }
+          if (HORARIO[d]) {
+            const h = hhmm(HORARIO[d][0][0]);
+            txt = s === 1 ? T.manana(h) : T.otroDia(T.dias[d], h);
+            break;
+          }
         }
       }
     }
@@ -526,22 +555,34 @@
       { transform: 'none' },
     ], { duration: 760, easing: 'ease-out' });
   };
+  // escribe lo que toca en el idioma actual; devuelve true si ya hay regalo
+  const pintarLab = () => {
+    const T = TEXTOS[idioma];
+    const total = (elegido.para ? 1 : 0) + (elegido.plan ? 1 : 0);
+    if (total < 2) {
+      espera.hidden = false;
+      espera.textContent = total ? T.faltaUno : T.faltanDos;
+      resultado.hidden = true;
+      lab.classList.remove('con-resultado');
+      return false;
+    }
+    const [clave, txtBase] = FORMULAS[elegido.para][elegido.plan];
+    const r = REGALOS[clave];
+    const tr = T.regalos ? T.regalos[clave] : r;
+    const img = $('[data-r="img"]', resultado);
+    img.src = `img/${r.img}.jpg`; img.alt = tr.alt;
+    $('[data-r="nombre"]', resultado).textContent = tr.nombre;
+    $('[data-r="txt"]', resultado).textContent = T.formulas ? T.formulas[elegido.para][elegido.plan] : txtBase;
+    espera.hidden = true;
+    resultado.hidden = false;
+    lab.classList.add('con-resultado');
+    return true;
+  };
   const mezclar = () => {
     const total = (elegido.para ? 1 : 0) + (elegido.plan ? 1 : 0);
     nivel(total);
     brinca(matraz, total === 2 ? 1 : .6);
-    if (total === 0) { espera.hidden = false; espera.textContent = 'Faltan dos ingredientes'; resultado.hidden = true; lab.classList.remove('con-resultado'); return; }
-    if (total === 1) { espera.hidden = false; espera.textContent = 'Falta un ingrediente'; resultado.hidden = true; lab.classList.remove('con-resultado'); return; }
-    const [clave, txt] = FORMULAS[elegido.para][elegido.plan];
-    const r = REGALOS[clave];
-    const img = $('[data-r="img"]', resultado);
-    img.src = `img/${r.img}.jpg`; img.alt = r.alt;
-    $('[data-r="nombre"]', resultado).textContent = r.nombre;
-    $('[data-r="txt"]', resultado).textContent = txt;
-    espera.hidden = true;
-    resultado.hidden = false;
-    lab.classList.add('con-resultado');
-    if (!calma && resultado.animate) {
+    if (pintarLab() && !calma && resultado.animate) {
       resultado.animate([
         { transform: 'translateY(2rem) scale(.8,1.1)', opacity: 0 },
         { transform: 'translateY(-.6rem) scale(1.03,.97)', opacity: 1, offset: .5 },
@@ -571,10 +612,8 @@
   /* ─── La pulsera de bolitas ─── */
   (() => {
     const svg = $('[data-pulsera]');
-    const COLORES = [
-      ['Rojo', '#F62C04'], ['Rosa', '#FEBCD8'], ['Mantequilla', '#FFD45E'],
-      ['Menta', '#8FD3B4'], ['Azul', '#3F6FD8'], ['Vino', '#6E1533'],
-    ];
+    // los nombres de estos colores están en idiomas.js, en el mismo orden
+    const COLORES = ['#F62C04', '#FEBCD8', '#FFD45E', '#8FD3B4', '#3F6FD8', '#6E1533'];
     const NUM = 34, cx = 230, cy = 240, rx = 150, ry = 168;
     const pts = [];
     for (let i = 0; i < NUM; i++) {
@@ -610,10 +649,9 @@
     };
     pintar(false);
     const caja = $('[data-muestras]');
-    COLORES.forEach(([nombre, c]) => {
+    COLORES.forEach(c => {
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'muestra'; b.style.setProperty('--c', c);
-      b.setAttribute('aria-label', `Añadir bolitas de color ${nombre}`);
       b.addEventListener('click', () => {
         patron = [...patron.slice(-3), c];
         pintar();
@@ -622,7 +660,7 @@
     });
     $('[data-sorpresa]').addEventListener('click', () => {
       const largo = 3 + Math.floor(Math.random() * 3);
-      patron = Array.from({ length: largo }, () => COLORES[Math.floor(Math.random() * COLORES.length)][1]);
+      patron = Array.from({ length: largo }, () => COLORES[Math.floor(Math.random() * COLORES.length)]);
       pintar();
     });
     // salta sola la primera vez que se ve
@@ -638,10 +676,71 @@
   const menu = abierto => {
     mMenu.hidden = !abierto;
     bMenu.setAttribute('aria-expanded', abierto);
-    bMenu.textContent = abierto ? 'Cerrar' : 'Menú';
+    bMenu.textContent = abierto ? TEXTOS[idioma].cerrar : TEXTOS[idioma].menu;
     document.documentElement.style.overflow = abierto ? 'hidden' : '';
   };
   bMenu.addEventListener('click', () => menu(mMenu.hidden));
   $$('a', mMenu).forEach(a => a.addEventListener('click', () => menu(false)));
   addEventListener('keydown', e => { if (e.key === 'Escape' && !mMenu.hidden) { menu(false); bMenu.focus(); } });
+
+  /* ─── Cambiar de idioma ─── */
+  const traducir = () => {
+    const T = TEXTOS[idioma], esBase = idioma === 'es';
+    const de = (clave, base) => (esBase ? base : T[clave] ?? base);
+    document.documentElement.lang = idioma;
+    textosBase.forEach(({ el, clave, base }) => {
+      const v = de(clave, base);
+      if (el.hasAttribute('data-letras')) partirLetras(el, v);
+      else if (el.hasAttribute('data-palabras')) partirPalabras(el, v);
+      else el.innerHTML = v;
+    });
+    atributosBase.forEach(({ el, attr, clave, base }) => el.setAttribute(attr, de(clave, base)));
+    $$('.hoja').forEach((h, i) => {
+      const d = esBase ? hojasBase[i] : T.hojas[i];
+      h.dataset.marca = d.marca; h.dataset.nombre = d.nombre; h.dataset.txt = d.txt;
+      $('img', h).alt = d.alt;
+      $('.hoja__boton', h).setAttribute('aria-label', d.aria);
+      const info = $('.hoja__info', h);
+      $('.ceja', info).textContent = d.marca;
+      $('h3', info).textContent = d.nombre;
+      $('p:last-child', info).textContent = d.txt;
+    });
+    partirTablero();
+    if (rueda) rueda.refrescar();
+    estado();
+    pintarLab();
+    $$('.muestra').forEach((b, i) => b.setAttribute('aria-label', T.anadir(T.colores[i])));
+    bMenu.textContent = mMenu.hidden ? T.menu : T.cerrar;
+    $('meta[name="description"]').content = esBase ? descBase : T.desc;
+    const mapa = $('[data-mapa]');
+    const src = mapa.src.replace(/hl=\w+/, `hl=${idioma}`);
+    if (src !== mapa.src) mapa.src = src;
+    $$('[data-lang]').forEach(a => {
+      if (a.dataset.lang === idioma) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+  };
+  // lo que se está viendo da un saltito al cambiar de idioma
+  const saludar = () => {
+    textosBase.forEach(({ el }) => {
+      if (el.hasAttribute('data-letras') || el.hasAttribute('data-palabras')) return;
+      const r = el.getBoundingClientRect();
+      if (r.width && r.bottom > 0 && r.top < innerHeight) brinca(el, .22);
+    });
+  };
+  $$('[data-lang]').forEach(a => a.addEventListener('click', e => {
+    e.preventDefault();
+    const nuevo = a.dataset.lang;
+    if (nuevo === idioma) return;
+    idioma = nuevo;
+    try { localStorage.setItem('idioma', nuevo); } catch (err) { /* sin almacenamiento, solo dura esta visita */ }
+    const url = new URL(location.href);
+    if (nuevo === 'es') url.searchParams.delete('lang'); else url.searchParams.set('lang', nuevo);
+    history.replaceState(null, '', url);
+    traducir();
+    brinca(a, .5);
+    saludar();
+  }));
+  traducir();
+  document.documentElement.classList.remove('traduciendo');
 })();
