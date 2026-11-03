@@ -19,7 +19,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=League+Spartan:wght@300;400;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilos.css">
+<!-- ?v= obliga a bajar la versión nueva: GitHub Pages guarda estos archivos 10 minutos. Subirlo al cambiarlos. -->
+<link rel="stylesheet" href="estilos.css?v=2">
 <script>
   document.documentElement.classList.add('js');
   // Idioma: el de la URL (?lang=), el último elegido o el del navegador.
@@ -37,8 +38,8 @@
     if (l !== 'es') { raiz.classList.add('traduciendo'); setTimeout(() => raiz.classList.remove('traduciendo'), 1500); }
   })();
 </script>
-<script src="idiomas.js" defer></script>
-<script src="app.js" defer></script>
+<script src="idiomas.js?v=2" defer></script>
+<script src="app.js?v=2" defer></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -101,12 +102,12 @@
       <a href="#create">Create</a>
       <a href="#visita" data-t="visitanos">Ven a vernos</a>
     </nav>
+    <button class="menu-boton" type="button" aria-expanded="false" aria-controls="menu-movil">Menú</button>
     <div class="idiomas" role="group" aria-label="Idioma" data-t-aria="idiomaAria">
       <a href="?lang=es" hreflang="es" lang="es" aria-label="Español" data-lang="es">ES</a>
       <a href="?lang=ca" hreflang="ca" lang="ca" aria-label="Català" data-lang="ca">CA</a>
       <a href="?lang=en" hreflang="en" lang="en" aria-label="English" data-lang="en">EN</a>
     </div>
-    <button class="menu-boton" type="button" aria-expanded="false" aria-controls="menu-movil">Menú</button>
   </div>
 </header>
 

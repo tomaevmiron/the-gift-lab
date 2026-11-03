@@ -82,11 +82,20 @@ address{font-style:normal}
 .menu{display:flex;gap:clamp(.9rem,1.7vw,1.6rem);font:600 .92rem/1 var(--sub);text-transform:uppercase;letter-spacing:.03em;background:var(--papel);border:3px dotted var(--carmin);border-radius:1.05rem;padding:.8rem 1.15rem .6rem}
 .menu a{text-decoration:none;color:var(--vino);display:inline-block;transition:translate .35s var(--muelle),color .2s}
 .menu a:hover{translate:0 -.22rem;color:var(--rojo)}
-.cabecera__derecha{display:flex;align-items:stretch;gap:.5rem}
-.idiomas{display:flex;align-items:center;gap:.1rem;background:var(--papel);border:3px dotted var(--carmin);border-radius:1.05rem;padding:.2rem}
-.idiomas a{display:block;font:700 .86rem/1 var(--sub);letter-spacing:.03em;text-decoration:none;color:var(--vino);padding:.56em .56em .38em;border-radius:.74rem;transition:background-color .2s,color .2s,translate .35s var(--muelle)}
-.idiomas a:hover{translate:0 -.14rem;color:var(--rojo)}
-.idiomas a[aria-current]{background:var(--rojo);color:var(--papel)}
+.cabecera__derecha{display:flex;align-items:center;gap:.8rem}
+/* selector de idioma: pegatinas recortadas, con los dos colores de los botones de la web */
+.idiomas{display:flex;align-items:center;gap:.34rem}
+.idiomas a{position:relative;display:block;font:400 1.34rem/1 var(--titulo);letter-spacing:.035em;text-decoration:none;color:var(--vino);background:var(--rosa);padding:.44em .62em .3em;border-radius:.72rem .95rem .68rem 1rem;box-shadow:0 0 0 3px var(--papel),0 .35rem .7rem rgba(58,11,26,.22);transition:background-color .2s,color .2s,translate .4s var(--muelle),rotate .4s var(--muelle),scale .4s var(--muelle)}
+.idiomas a:nth-child(1){rotate:-4deg}
+.idiomas a:nth-child(2){rotate:3deg}
+.idiomas a:nth-child(3){rotate:-2.5deg}
+.idiomas a:hover{translate:0 -.22rem;rotate:0deg;background:#ffa6cc}
+.idiomas a:active{scale:.94 .9}
+.idiomas a[aria-current]{z-index:1;scale:1.12;color:var(--papel);background:var(--rojo);-webkit-text-stroke:.012em currentColor}
+.idiomas a[aria-current]:hover{background:var(--carmin)}
+.cabecera .idiomas a{animation:pegar .7s var(--muelle) .35s backwards}
+.cabecera .idiomas a:nth-child(2){animation-delay:.43s}
+.cabecera .idiomas a:nth-child(3){animation-delay:.51s}
 .traduciendo body{visibility:hidden}
 .menu-boton{display:none;font:700 .95rem/1 var(--sub);text-transform:uppercase;letter-spacing:.03em;background:var(--papel);color:var(--carmin);border:3px dotted var(--carmin);border-radius:.95rem;padding:.75rem .95rem .55rem}
 .menu-movil{position:fixed;z-index:45;inset:0;background:var(--rosa);display:flex;flex-direction:column;justify-content:center;gap:.25rem;padding:6rem 2rem 3rem}
@@ -297,10 +306,8 @@ address{font-style:normal}
 .pie__verbos{font:300 clamp(.76rem,1.1vw,1rem)/1.4 var(--sub);letter-spacing:.2em;text-transform:uppercase;margin-top:.7rem}
 .pie__datos{margin-top:1.5rem}
 .pie__datos a{color:var(--papel)}
-.idiomas--pie{background:none;border-color:var(--rosa);margin-top:1.5rem}
-.idiomas--pie a{color:var(--rosa);font-size:.98rem}
-.idiomas--pie a:hover{color:var(--papel)}
-.idiomas--pie a[aria-current]{background:var(--rosa);color:var(--vino)}
+.idiomas--pie{gap:.55rem;margin-top:1.6rem}
+.idiomas--pie a{font-size:1.45rem;box-shadow:none}
 .pie__legal{font:400 .85rem/1 var(--sub);opacity:.75;margin-top:1.6rem}
 
 /* ─── animación: todo entra saltando, contento ─── */
@@ -335,6 +342,7 @@ address{font-style:normal}
   76%{transform:translateY(1%) scale(1.03,.97)}
 }
 @keyframes brote{0%{scale:0;opacity:0}60%{opacity:1}100%{scale:1;opacity:1}}
+@keyframes pegar{from{scale:0;opacity:0}}
 @keyframes flotar{0%,100%{translate:0 0}50%{translate:0 -.7rem}}
 @keyframes chispa{0%,100%{transform:scale(1) rotate(0)}12%{transform:scale(1.4) rotate(40deg)}24%{transform:scale(.8) rotate(80deg)}36%,99%{transform:scale(1) rotate(90deg)}}
 @keyframes latido{0%,100%{scale:1}50%{scale:1.3}}
@@ -361,8 +369,8 @@ address{font-style:normal}
   .menu{display:none}
   .menu-boton{display:block}
   .cabecera{padding:1.2rem 1.4rem 0}
-  .idiomas a{padding:.68em .56em .5em}
-  .idiomas--pie a{padding:.68em .7em .5em}
+  .cabecera__derecha{gap:.55rem}
+  .idiomas a{padding:.5em .6em .36em}
   .portada{justify-content:flex-start;padding:4.6rem 1.7rem 1.6rem;min-height:100svh}
   .portada__centro{width:100%}
   .portada__logo{width:min(100%,24rem)}
@@ -398,6 +406,14 @@ address{font-style:normal}
   .tablero{font-size:clamp(.92rem,5.5vw,2.2rem);letter-spacing:.05em}
   .creadoras__foto{order:0}
   .pie__logo{width:min(70%,17rem)}
+}
+
+/* ─── móviles muy estrechos ─── */
+@media (max-width:360px){
+  .cabecera{padding-inline:1rem}
+  .cabecera__logo{width:3.8rem}
+  .cabecera .idiomas a{font-size:1.14rem}
+  .menu-boton{font-size:.84rem;padding-inline:.65rem}
 }
 
 /* ─── sin movimiento si así se pide ─── */
